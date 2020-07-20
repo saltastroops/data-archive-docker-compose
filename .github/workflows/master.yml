@@ -1,0 +1,49 @@
+# The Data Archive Docker Compose Master Workflow
+name: Data Archive Docker Compose Master Workflow
+
+# This workflow is triggered whenever there are new commits pushed to the master branch.
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  job:
+    # The job for executing docker compose on the production server.
+    name: Execute docker compose on the production server
+    # This job is executed on the Linux machine.
+    runs-on: ubuntu-latest
+
+    # The steps to be executed for this job.
+    steps:
+      # This step uses the checkout action to make sure the latest code is used.
+      - name: Use the latest code
+        uses: actions/checkout@v1
+      # This step uses the fifsky ssh action to setup a ssh server used to ssh into the production server.
+      - name: Fifsky ssh server
+        uses: fifsky/ssh-action@master
+        # The fifsky ssh action accepts parameters.
+        # These parameters are secretly stored in GitHub secrete store.
+        # In this case, the following parameters are supplied
+        # key, the client ssh private key
+        # host, the host to ssh into
+        # user, the host username to ssh into
+        # port, the host port to ssh into
+        # command, the command to be executed inside the remote host.
+        with:
+          key: ${{ secrets.SSH_MACHINE_PRIVATE_SSH_KEY }}
+          host: ${{ secrets.SSH_MACHINE_HOST }}
+          user: ${{ secrets.SSH_MACHINE_USER }}
+          port: ${{ secrets.SSH_MACHINE_PORT }}
+          # The ssh action logs into a gateway server,
+          # and we still have to connect to the machine on which the data archive is hosted.
+          command: |
+            ssh -o StrictHostKeyChecking=no -tt ${{ secrets.PROD_USER}}@${{ secrets.PROD_HOST}} -p ${{ secrets.PROD_PORT}} """
+              set -eu
+              cd /home/ssda/data-archive-backend &&
+              git checkout . &&
+              git checkout master &&
+              git pull &&
+              docker-compose -f docker-compose.yml -f docker-compose.prod.yml up
+              exit
+            """
