@@ -1,36 +1,33 @@
 version: '3.7'
 services:
-  ssdadb:
-    container_name: ssdadbdev
+  data-archive-postgres:
+    container_name: data-archive-postgres
     ports: 
       - ${POSTGRES_PORT}:5432
     environment: 
       - POSTGRES_PASSWORD=${POSTGRES_IMAGE_PASSWORD}
-    restart: on-failure
-
-  data-archive-frontend:
-    image: data-archive-frontend
-    container_name: ssda
-    build: 
-      context: ${DATA_ARCHIVE_FRONTEND_BASE_DIR}
-      dockerfile: Dockerfile.prod
-    volumes: 
-      - ${DATA_ARCHIVE_FRONTEND_BASE_DIR}:/data-archive-frontend
-    ports: 
-      - ${DATA_ARCHIVE_FRONTEND_PORT}:3000
-    restart: on-failure
+    restart: always
 
   data-archive-backend:
     image: data-archive-backend
-    container_name: ssda-api
+    container_name: data-archive-backend
     build: 
       context: ${DATA_ARCHIVE_BACKEND_BASE_DIR}
       dockerfile: Dockerfile.prod
     volumes: 
-      - ${DATA_ARCHIVE_BACKEND_BASE_DIR}:/data-archive-backend
+      - ${DATA_REQUEST_BASE_DIR}
     ports: 
       - ${DATA_ARCHIVE_BACKEND_PORT}:4001
     depends_on:
-      - ssdadb
-    restart: on-failure
+      - data-archive-postgres
+    restart: unless-stopped
   
+  data-archive-nginx:
+    image: nginx:latest
+    container_name: data-archive-nginx
+    restart: unless-stopped
+    ports:
+      - ${NGINX_PORT}:80
+    volumes:
+      - ${DATA_ARCHIVE_FRONTEND_BUILD_BASE_DIR}:/usr/share/nginx/html/build
+      - ${NGINX_CONFIG_FILE}:/etc/nginx/conf.d/default.conf:ro

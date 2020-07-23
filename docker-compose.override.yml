@@ -1,36 +1,37 @@
 version: '3.7'
 services:
-  ssdadb:
-    container_name: ssdadb
+  data-archive-postgres:
+    container_name: data-archive-postgres-dev
     ports: 
       - ${POSTGRES_PORT}:5432
     environment: 
       - POSTGRES_PASSWORD=${POSTGRES_IMAGE_PASSWORD}
-    restart: on-failure
+    restart: always
 
   data-archive-frontend:
     image: data-archive-frontend
-    container_name: ssda
+    container_name: data-archive-frontend
     build: 
       context: ${DATA_ARCHIVE_FRONTEND_BASE_DIR}
-      dockerfile: Dockerfile.local
+      dockerfile: Dockerfile.dev
     volumes: 
-      - ${DATA_ARCHIVE_FRONTEND_BASE_DIR}:/data-archive-frontend
+      - ${DATA_ARCHIVE_FRONTEND_BASE_DIR}:/opt/data-archive-frontend
     ports: 
       - ${DATA_ARCHIVE_FRONTEND_PORT}:3000
-    restart: on-failure
+    restart: unless-stopped
 
   data-archive-backend:
     image: data-archive-backend
-    container_name: ssda-api
+    container_name: data-archive-backend
     build: 
       context: ${DATA_ARCHIVE_BACKEND_BASE_DIR}
-      dockerfile: Dockerfile.local
+      dockerfile: Dockerfile.dev
     volumes: 
-      - ${DATA_ARCHIVE_BACKEND_BASE_DIR}:/data-archive-backend
+      - ${DATA_REQUEST_BASE_DIR}
+      - ${DATA_ARCHIVE_BACKEND_BASE_DIR}:/opt/data-archive-backend
     ports: 
       - ${DATA_ARCHIVE_BACKEND_PORT}:4001
     depends_on:
-      - ssdadb
-    restart: on-failure
+      - data-archive-postgres
+    restart: unless-stopped
   

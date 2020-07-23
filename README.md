@@ -33,9 +33,13 @@ Variable | Description | Example
 DATA_ARCHIVE_BACKEND_BASE_DIR | The location of the data archive backend | /path/to/data-archive-backend
 DATA_ARCHIVE_BACKEND_PORT | Port on which the data archive backend should be listening | 4001
 DATA_ARCHIVE_FRONTEND_BASE_DIR | The location of the data archive frontend | /path/to/data-archive-backend
+DATA_ARCHIVE_FRONTEND_BUILD_BASE_DIR | The location of the data archive frontend build directory| /path/to/data-archive-backend/build
 DATA_ARCHIVE_FRONTEND_PORT | Port on which the data archive frontend should be listening | 3000
+NGINX_CONFIG_FILE | The location of the nginx config file  | /path/to/nginx/file.conf
+NGINX_PORT | The free port on the host to map with the nginx image port  | 8000
 POSTGRES_IMAGE_PASSWORD | The postgres image password | secret
 POSTGRES_PORT | The free port on the host to map with the postgres image port  | 5431
+
 
 Execute the following command to run the data archive,
 
@@ -45,13 +49,7 @@ on local host
 docker-compose up -d
 ```
 
-on development server
-
-```sh
-docker-compose -f docker-compose.yml -f docker-compose.dev.yml up -d
-```
-
-on production
+on development server and on production server
 
 ```sh
 docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
