@@ -1,13 +1,5 @@
 version: '3.7'
 services:
-  data-archive-postgres:
-    container_name: data-archive-postgres-dev
-    ports: 
-      - ${POSTGRES_PORT}:5432
-    environment: 
-      - POSTGRES_PASSWORD=${POSTGRES_IMAGE_PASSWORD}
-    restart: always
-
   data-archive-frontend:
     image: data-archive-frontend
     container_name: data-archive-frontend
@@ -18,7 +10,7 @@ services:
       - ${DATA_ARCHIVE_FRONTEND_BASE_DIR}:/opt/data-archive-frontend
     ports: 
       - ${DATA_ARCHIVE_FRONTEND_PORT}:3000
-    restart: unless-stopped
+    restart: on-failure
 
   data-archive-backend:
     image: data-archive-backend
@@ -31,7 +23,5 @@ services:
       - ${DATA_ARCHIVE_BACKEND_BASE_DIR}:/opt/data-archive-backend
     ports: 
       - ${DATA_ARCHIVE_BACKEND_PORT}:4001
-    depends_on:
-      - data-archive-postgres
-    restart: unless-stopped
+    restart: on-failure
   

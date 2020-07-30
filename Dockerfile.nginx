@@ -1,0 +1,8 @@
+# Specify a base image.
+FROM nginx AS nginx
+
+# Remove existing configuration file.
+RUN rm /etc/nginx/conf.d/default.conf
+
+# Copy the configuration of the project in to the image.
+COPY ./nginx/default.conf /etc/nginx/conf.d
